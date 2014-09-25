@@ -1,0 +1,5 @@
+.DS_Store
+/documentation
+/tests
+credentials.php
+log.txt
