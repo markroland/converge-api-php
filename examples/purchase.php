@@ -17,6 +17,7 @@ $response = $PaymentProcessor->purchase(
     array(
         'ssl_amount' => '9.99',
         'ssl_card_number' => '5000300020003003',
+        'ssl_cvv2cvc2' => '123',
         'ssl_exp_date' => '1222',
         'ssl_avs_zip' => '37013',
         'ssl_avs_address' => '123 main',

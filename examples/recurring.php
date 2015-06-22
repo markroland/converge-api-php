@@ -17,6 +17,7 @@ $response = $PaymentProcessor->recurring(
     array(
         'ssl_amount' => '9.99',
         'ssl_card_number' => '5000300020003003',
+        'ssl_cvv2cvc2' => '123',
         'ssl_exp_date' => '1222',
         'ssl_avs_zip' => '37013',
         'ssl_avs_address' => '123 main',
@@ -29,7 +30,7 @@ $response = $PaymentProcessor->recurring(
 );
 
 // Display Converge API response
-print('ConvergeApi->purchase Response:' . "\n\n");
+print('ConvergeApi->recurring Response:' . "\n\n");
 var_dump($response);
 print("\n");
 
