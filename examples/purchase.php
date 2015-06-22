@@ -1,7 +1,8 @@
 <?php
 
-// Require the Composer autoloader
-require(__DIR__ . './../../../autoload.php');
+// Require the class
+require(__DIR__ . './../src/ConvergeApi.php'); // ... directly
+// require(__DIR__ . './../../../autoload.php'); // ... via Composer
 
 // Create new PaymentProcessor object
 $PaymentProcessor = new \markroland\Converge\ConvergeApi(
