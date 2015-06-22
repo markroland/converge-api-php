@@ -1,12 +1,12 @@
 <phpunit bootstrap="src/ConvergeApi.php">
   <testsuites>
     <testsuite name="converge">
-      <file>tests</file>
+      <file>./tests</file>
     </testsuite>
   </testsuites>
   <filter>
     <whitelist>
-      <directory suffix=".php">src</directory>
+      <directory suffix=".php">./src</directory>
     </whitelist>
   </filter>
 </phpunit>
