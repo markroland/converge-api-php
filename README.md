@@ -4,10 +4,16 @@ Converge API PHP class
 A PHP class that acts as wrapper for the Converge API.
 
 
-Working with the class
+Official API Documentation
 ----------------------
 
-[Converge API documentation](https://demo.myvirtualmerchant.com/VirtualMerchantDemo/supportlandingvisitor.do)
+[Converge API documentation Site](https://demo.myvirtualmerchant.com/VirtualMerchantDemo/supportlandingvisitor.do)
+
+[Converge API documentation PDF](https://www.myvirtualmerchant.com/VirtualMerchant/download/developerGuide.pdf)
+
+
+Working with the class
+----------------------
 
 
 Copyright and License
