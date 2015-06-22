@@ -1,8 +1,8 @@
 {
-    "name": "markroland/converge-api-php-class",
+    "name": "markroland/converge-api-php",
     "description": "A PHP class that acts as wrapper for the Converge API",
     "keywords": ["converge", "api", "virtual merchant", "elavon"],
-    "homepage": "https://github.com/markroland/converge-api-php-class",
+    "homepage": "https://github.com/markroland/converge-api-php",
     "license": "MIT",
     "authors": [
         {
