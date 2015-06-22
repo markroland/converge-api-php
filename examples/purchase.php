@@ -3,15 +3,11 @@
 // Require the Composer autoloader
 require(__DIR__ . './../../../autoload.php');
 
-// Include credentials.
-// Defines CONVERGE_MERCHANTID, CONVERGE_USERID & CONVERGE_PIN
-include('credentials.php');
-
 // Create new PaymentProcessor object
 $PaymentProcessor = new \markroland\Converge\ConvergeApi(
-    CONVERGE_MERCHANTID,
-    CONVERGE_USERID,
-    CONVERGE_PIN,
+    'YOUR_CONVERGE_MERCHANTID',
+    'YOUR_CONVERGE_USERID',
+    'YOUR_CONVERGE_PIN',
     false
 );
 
@@ -27,8 +23,12 @@ $response = $PaymentProcessor->purchase(
     )
 );
 
-// Display unformatted (XML) response
+// Display Converge API response
+print('ConvergeApi->purchase Response:' . "\n\n");
 var_dump($response);
+print("\n");
 
-// Debugging info
+// HTTP Debugging info
+print('HTTP Debugging:' . "\n\n");
 var_dump($PaymentProcessor->debug);
+print("\n");
