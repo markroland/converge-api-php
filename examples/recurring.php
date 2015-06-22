@@ -1,21 +1,21 @@
 <?php
 
-// Include Ontraport class
-include('Converge.class.php');
+// Require the Composer autoloader
+require(__DIR__ . './../../../autoload.php');
 
 // Include credentials.
 // Defines CONVERGE_MERCHANTID, CONVERGE_USERID & CONVERGE_PIN
 include('credentials.php');
 
 // Create new PaymentProcessor object
-$PaymentProcessor = new \markroland\PaymentProcessor\Converge\Converge(
+$PaymentProcessor = new \markroland\Converge\ConvergeApi(
     CONVERGE_MERCHANTID,
     CONVERGE_USERID,
     CONVERGE_PIN,
     false
 );
 
-// Add contact
+// Submit a recurring payment
 $response = $PaymentProcessor->recurring(
     array(
         'ssl_amount' => '9.99',
@@ -35,4 +35,4 @@ $response = $PaymentProcessor->recurring(
 echo $response;
 
 // Debugging info
-// var_dump($PaymentProcessor->debug);
+var_dump($PaymentProcessor->debug);

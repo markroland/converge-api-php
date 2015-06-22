@@ -1,32 +1,18 @@
 <?php
 
-namespace markroland\PaymentProcessor\Converge;
-
-/**
- *
- * Define a generic interface
- *
- **/
-interface PaymentProcessor
-{
-    public function purchase(array $parameters = array());
-    public function recurring(array $parameters = array());
-}
+namespace markroland\Converge;
 
 /**
  *
  * A PHP class that acts as wrapper for the Elavon Converge API
  *
- * Copyright 2014 Mark Roland
- * Licensed under the MIT License
  * @author Mark Roland
  * @copyright 2014 Mark Roland
  * @license http://opensource.org/licenses/MIT
  * @link http://github.com/markroland/converge-api-php-class
- * @version 0.1.1
  *
  **/
-class Converge implements PaymentProcessor
+class ConvergeApi
 {
 
     /**
@@ -46,6 +32,12 @@ class Converge implements PaymentProcessor
      * @var string
      */
     private $pin = '';
+
+    /**
+     * API Live mode
+     * @var boolean
+     */
+    private $live = true;
 
     /**
      * A variable to hold debugging information
@@ -141,11 +133,6 @@ class Converge implements PaymentProcessor
 
         // Return parsed response
         return $curl_response;
-    }
-
-    public function validateTransaction($transaction)
-    {
-
     }
 
     public function purchase(array $parameters = array())
