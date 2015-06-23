@@ -13,7 +13,7 @@ $PaymentProcessor = new \markroland\Converge\ConvergeApi(
 );
 
 // Submit a purchase
-$response = $PaymentProcessor->purchase(
+$response = $PaymentProcessor->ccsale(
     array(
         'ssl_amount' => '9.99',
         'ssl_card_number' => '5000300020003003',
@@ -26,11 +26,5 @@ $response = $PaymentProcessor->purchase(
 );
 
 // Display Converge API response
-print('ConvergeApi->purchase Response:' . "\n\n");
-var_dump($response);
-print("\n");
-
-// HTTP Debugging info
-print('HTTP Debugging:' . "\n\n");
-var_dump($PaymentProcessor->debug);
-print("\n");
+print('ConvergeApi->ccsale Response:' . "\n\n");
+print_r($response);

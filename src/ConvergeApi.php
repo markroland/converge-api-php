@@ -9,7 +9,7 @@ namespace markroland\Converge;
  * @author Mark Roland
  * @copyright 2014 Mark Roland
  * @license http://opensource.org/licenses/MIT
- * @link http://github.com/markroland/converge-api-php-class
+ * @link http://github.com/markroland/converge-api-php
  *
  **/
 class ConvergeApi
@@ -102,7 +102,7 @@ class ConvergeApi
         // Save the response to a string
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
-        // Send data as PUT request
+        // Set HTTP method
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $http_method);
 
         // This may be necessary, depending on your server's configuration
@@ -126,22 +126,54 @@ class ConvergeApi
         $curl_response = curl_exec($ch);
 
         // Save CURL debugging info
+        $this->debug['Last Response'] = $curl_response;
         $this->debug['Curl Info'] = curl_getinfo($ch);
 
         // Close cURL handle
         curl_close($ch);
 
+        // Parse response
+        $response = $this->parseAsciiResponse($curl_response);
+
         // Return parsed response
-        return $curl_response;
+        return $response;
     }
 
-    public function purchase(array $parameters = array())
+    /**
+     * Parse an ASCII response
+     * @param string $ascii_string An ASCII (plaintext) Response
+     * @return array
+     **/
+    private function parseAsciiResponse($ascii_string)
+    {
+        $data = array();
+        $lines = explode("\n", $ascii_string);
+        if (count($lines)) {
+            foreach ($lines as $line) {
+                $kvp = explode('=', $line);
+                $data[$kvp[0]] = $kvp[1];
+            }
+        }
+        return $data;
+    }
+
+    /**
+     * Submit "ccsale" request
+     * @param array $parameters Input parameters
+     * @return array Response from Converge
+     **/
+    public function ccsale(array $parameters = array())
     {
         $parameters['ssl_transaction_type'] = 'ccsale';
         return $this->sendRequest('ccsale', 'POST', $parameters);
     }
 
-    public function recurring(array $parameters = array())
+    /**
+     * Submit "ccaddinstall" request
+     * @param array $parameters Input parameters
+     * @return array Response from Converge
+     **/
+    public function ccaddinstall(array $parameters = array())
     {
         $parameters['ssl_transaction_type'] = 'ccaddinstall';
         return $this->sendRequest('ccaddinstall', 'POST', $parameters);

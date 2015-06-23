@@ -13,7 +13,7 @@ $PaymentProcessor = new \markroland\Converge\ConvergeApi(
 );
 
 // Submit a recurring payment
-$response = $PaymentProcessor->recurring(
+$response = $PaymentProcessor->ccaddinstall(
     array(
         'ssl_amount' => '9.99',
         'ssl_card_number' => '5000300020003003',
@@ -30,11 +30,5 @@ $response = $PaymentProcessor->recurring(
 );
 
 // Display Converge API response
-print('ConvergeApi->recurring Response:' . "\n\n");
-var_dump($response);
-print("\n");
-
-// HTTP Debugging info
-print('HTTP Debugging:' . "\n\n");
-var_dump($PaymentProcessor->debug);
-print("\n");
+print('ConvergeApi->ccaddinstall Response:' . "\n\n");
+print_r($response);
