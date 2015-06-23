@@ -1,7 +1,9 @@
 Converge API PHP class
-===================
+======================
 
 A PHP class that acts as wrapper for the Converge API.
+
+Converge, formerly VirtualMerchant, is Elavon's online payment platform.
 
 
 Official API Documentation
