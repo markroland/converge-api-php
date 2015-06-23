@@ -5,15 +5,37 @@ A PHP class that acts as wrapper for the Converge API.
 
 
 Official API Documentation
-----------------------
+--------------------------
 
 [Converge API documentation Site](https://demo.myvirtualmerchant.com/VirtualMerchantDemo/supportlandingvisitor.do)
 
 [Converge API documentation PDF](https://www.myvirtualmerchant.com/VirtualMerchant/download/developerGuide.pdf)
 
 
+Installation
+------------
+
+This Converge API is installed via [Composer](http://getcomposer.org/). To install, simply add it
+to your `composer.json` file:
+
+```json
+{
+    "require": {
+        "markroland/converge-api-php": "~0.1.*"
+    }
+}
+```
+
+And run composer to update your dependencies:
+
+    $ curl -s http://getcomposer.org/installer | php
+    $ php composer.phar update
+
+
 Working with the class
 ----------------------
+
+Examples are provided in the "examples" folder.
 
 
 Copyright and License
