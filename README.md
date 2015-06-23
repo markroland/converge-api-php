@@ -32,10 +32,20 @@ And run composer to update your dependencies:
     $ php composer.phar update
 
 
-Working with the class
+Working with the Class
 ----------------------
 
 Examples are provided in the "examples" folder.
+
+
+Running Tests
+-------------
+
+Run tests from current working directory.
+
+Example: Run with code coverage
+
+    [converge-api-php]# phpunit --coverage-html ./report tests/testConvergeApi.php
 
 
 Copyright and License
