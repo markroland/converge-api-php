@@ -3,7 +3,7 @@
 /*
     Assumptions:
         - PHPUnit is installed globally so no include is necessary
-        - phpunit.xml is used to define path to code and bootstrap tests
+        - phpunit.xml.dist is used to define path to code and bootstrap tests
 */
 
 class convergeApiTest extends PHPUnit_Framework_TestCase
