@@ -178,4 +178,48 @@ class ConvergeApi
         $parameters['ssl_transaction_type'] = 'ccaddinstall';
         return $this->sendRequest('ccaddinstall', 'POST', $parameters);
     }
+
+    /**
+     * Submit "ccaddrecurring" request
+     * @param array $parameters Input parameters
+     * @return array Response from Converge
+     **/
+    public function ccaddrecurring(array $parameters = array())
+    {
+        $parameters['ssl_transaction_type'] = 'ccaddrecurring';
+        return $this->sendRequest('ccaddrecurring', 'POST', $parameters);
+    }
+
+    /**
+     * Submit "ccupdaterecurring" request
+     * @param array $parameters Input parameters
+     * @return array Response from Converge
+     **/
+    public function ccupdaterecurring(array $parameters = array())
+    {
+        $parameters['ssl_transaction_type'] = 'ccupdaterecurring';
+        return $this->sendRequest('ccupdaterecurring', 'POST', $parameters);
+    }
+
+    /**
+     * Submit "ccdeleterecurring" request
+     * @param array $parameters Input parameters
+     * @return array Response from Converge
+     **/
+    public function ccdeleterecurring(array $parameters = array())
+    {
+        $parameters['ssl_transaction_type'] = 'ccdeleterecurring';
+        return $this->sendRequest('ccdeleterecurring', 'POST', $parameters);
+    }
+
+    /**
+     * Submit "ccresurringsale" request
+     * @param array $parameters Input parameters
+     * @return array Response from Converge
+     **/
+    public function ccresurringsale(array $parameters = array())
+    {
+        $parameters['ssl_transaction_type'] = 'ccresurringsale';
+        return $this->sendRequest('ccresurringsale', 'POST', $parameters);
+    }
 }

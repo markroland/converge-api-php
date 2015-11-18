@@ -5,6 +5,8 @@ A PHP class that acts as wrapper for the Converge API.
 
 Converge, formerly VirtualMerchant, is Elavon's online payment platform.
 
+This API should meet the specifications as released in the Converge Developer Guide, November 2015 Revision.
+
 
 Official API Documentation
 --------------------------
@@ -23,7 +25,7 @@ to your `composer.json` file:
 ```json
 {
     "require": {
-        "markroland/converge-api-php": "~0.1.*"
+        "markroland/converge-api-php": "~0.2"
     }
 }
 ```
