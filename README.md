@@ -1,6 +1,8 @@
 Converge API PHP class
 ======================
 
+[![Build Status](https://travis-ci.org/israelshirk/converge-api-php.svg?branch=master)](https://travis-ci.org/israelshirk/converge-api-php)
+
 A PHP class that acts as wrapper for the Converge API.
 
 Converge, formerly VirtualMerchant, is Elavon's online payment platform.
@@ -15,6 +17,9 @@ Official API Documentation
 
 [Converge API documentation PDF](https://www.myvirtualmerchant.com/VirtualMerchant/download/developerGuide.pdf)
 
+Compatibility
+--------------------------
+This class should work with PHP >= 5.5.  For PHPUnit 5.5, PHP >= 5.6 is required.
 
 Installation
 ------------

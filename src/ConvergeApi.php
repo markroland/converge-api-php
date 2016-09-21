@@ -40,6 +40,18 @@ class ConvergeApi
     private $live = true;
 
     /**
+     * Insecure mode for old servers
+     * @var boolean
+     */
+    private $insecure = false;
+
+    /**
+     * Guzzle handler for mocks/etc
+     * @var GuzzleHttp\Handler\MockHandler
+     */
+    private $handler = null;
+
+    /**
      * A variable to hold debugging information
      * @var array
      */
@@ -54,23 +66,28 @@ class ConvergeApi
      * @param boolean $live True to use the Live server, false to use the Demo server
      * @return null
      **/
-    public function __construct($merchant_id, $user_id, $pin, $live = true)
+    public function __construct($merchant_id, $user_id, $pin, $live = true, $insecure = false)
     {
         $this->merchant_id = $merchant_id;
         $this->user_id = $user_id;
         $this->pin = $pin;
         $this->live = $live;
+        $this->insecure = $insecure;
+    }
+
+    public function setHandler($handler)
+    {
+        $this->handler = $handler;
     }
 
     /**
      * Send a HTTP request to the API
      *
      * @param string $api_method The API method to be called
-     * @param string $http_method The HTTP method to be used (GET, POST, PUT, DELETE, etc.)
      * @param array $data Any data to be sent to the API
      * @return string
      **/
-    private function sendRequest($api_method, $http_method = 'GET', $data = null)
+    private function sendRequest($api_method, $data)
     {
 
         // Standard data
@@ -79,7 +96,24 @@ class ConvergeApi
         $data['ssl_pin'] = $this->pin;
         $data['ssl_show_form'] = 'false';
         $data['ssl_result_format'] = 'ascii';
-        $data['ssl_test_mode'] = 'false';
+
+        if (!empty($data['ssl_test_mode']) && !is_string($data['ssl_test_mode'])) {
+            $data['ssl_test_mode'] = $data['ssl_test_mode'] ? 'true' : 'false';
+        } else {
+            $data['ssl_test_mode'] = 'false';
+        }
+
+        $guzzleOptions = ['defaults' => []];
+
+        // I haven't tested this but Goooogling gives:
+        // http://stackoverflow.com/questions/28066409/how-to-ignore-invalid-ssl-certificate-errors-in-guzzle-5
+        $guzzleOptions['defaults']['verify'] = !$this->insecure;
+
+        if ($this->handler) {
+            $guzzleOptions['handler'] = $this->handler;
+        }
+
+        $this->debug['SSL Mode'] = $this->insecure ? 'WARNING: VERIFICATION DISABLED': 'Verification enabled';
 
         // Set request
         if ($this->live) {
@@ -90,53 +124,36 @@ class ConvergeApi
 
         // Debugging output
         $this->debug = array();
-        $this->debug['HTTP Method'] = $http_method;
         $this->debug['Request URL'] = $request_url;
 
-        // Create a cURL handle
-        $ch = curl_init();
+        $this->debug['Posted Data'] = $data ? http_build_query($data) : null;
 
-        // Set the request
-        curl_setopt($ch, CURLOPT_URL, $request_url);
+        $body = http_build_query($data);
 
-        // Save the response to a string
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        // Debugging output
+        $this->debug['Posted Data'] = $data;
 
-        // Set HTTP method
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $http_method);
-
-        // This may be necessary, depending on your server's configuration
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-
-        // This may be necessary, depending on your server's configuration
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-
-        // Send data
-        if (!empty($data)) {
-
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
-
-            // Debugging output
-            $this->debug['Posted Data'] = $data;
-
+        try {
+            $client = new \GuzzleHttp\Client($guzzleOptions);
+            $response = $client->request('POST', $request_url, [
+                'headers' => [],
+                'body' => $body,
+            ]);
+        } catch (\Exception $e) {
+            $this->debug['Exception'] = $e;
+            return null;
         }
 
-        // Execute cURL request
-        $curl_response = curl_exec($ch);
+        $responseBody = (string)$response->getBody();
 
-        // Save CURL debugging info
-        $this->debug['Last Response'] = $curl_response;
-        $this->debug['Curl Info'] = curl_getinfo($ch);
+        $this->debug['Response Status Code'] = $response->getStatusCode();
+        $this->debug['Response Reason Phrase'] = $response->getReasonPhrase();
+        $this->debug['Response Protocol Version'] = $response->getProtocolVersion();
+        $this->debug['Response Headers'] = $response->getHeaders();
+        $this->debug['Response Body'] = $responseBody;
 
-        // Close cURL handle
-        curl_close($ch);
-
-        // Parse response
-        $response = $this->parseAsciiResponse($curl_response);
-
-        // Return parsed response
-        return $response;
+        // Parse and return
+        return $this->parseAsciiResponse($responseBody);
     }
 
     /**
@@ -148,10 +165,12 @@ class ConvergeApi
     {
         $data = array();
         $lines = explode("\n", $ascii_string);
+
         if (count($lines)) {
             foreach ($lines as $line) {
-                $kvp = explode('=', $line);
-                $data[$kvp[0]] = $kvp[1];
+                if ($kvp = explode('=', $line, 2)) {
+                    $data[$kvp[0]] = $kvp[1];
+                }
             }
         }
         return $data;
@@ -165,7 +184,7 @@ class ConvergeApi
     public function ccsale(array $parameters = array())
     {
         $parameters['ssl_transaction_type'] = 'ccsale';
-        return $this->sendRequest('ccsale', 'POST', $parameters);
+        return $this->sendRequest('ccsale', $parameters);
     }
 
     /**
@@ -176,7 +195,7 @@ class ConvergeApi
     public function ccaddinstall(array $parameters = array())
     {
         $parameters['ssl_transaction_type'] = 'ccaddinstall';
-        return $this->sendRequest('ccaddinstall', 'POST', $parameters);
+        return $this->sendRequest('ccaddinstall', $parameters);
     }
 
     /**
@@ -187,7 +206,7 @@ class ConvergeApi
     public function ccaddrecurring(array $parameters = array())
     {
         $parameters['ssl_transaction_type'] = 'ccaddrecurring';
-        return $this->sendRequest('ccaddrecurring', 'POST', $parameters);
+        return $this->sendRequest('ccaddrecurring', $parameters);
     }
 
     /**
@@ -198,7 +217,7 @@ class ConvergeApi
     public function ccupdaterecurring(array $parameters = array())
     {
         $parameters['ssl_transaction_type'] = 'ccupdaterecurring';
-        return $this->sendRequest('ccupdaterecurring', 'POST', $parameters);
+        return $this->sendRequest('ccupdaterecurring', $parameters);
     }
 
     /**
@@ -209,7 +228,7 @@ class ConvergeApi
     public function ccdeleterecurring(array $parameters = array())
     {
         $parameters['ssl_transaction_type'] = 'ccdeleterecurring';
-        return $this->sendRequest('ccdeleterecurring', 'POST', $parameters);
+        return $this->sendRequest('ccdeleterecurring', $parameters);
     }
 
     /**
@@ -220,6 +239,6 @@ class ConvergeApi
     public function ccresurringsale(array $parameters = array())
     {
         $parameters['ssl_transaction_type'] = 'ccresurringsale';
-        return $this->sendRequest('ccresurringsale', 'POST', $parameters);
+        return $this->sendRequest('ccresurringsale', $parameters);
     }
 }
