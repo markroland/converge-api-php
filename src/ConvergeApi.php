@@ -113,8 +113,6 @@ class ConvergeApi
             $guzzleOptions['handler'] = $this->handler;
         }
 
-        $this->debug['SSL Mode'] = $this->insecure ? 'WARNING: VERIFICATION DISABLED': 'Verification enabled';
-
         // Set request
         if ($this->live) {
             $request_url = 'https://api.convergepay.com/VirtualMerchant/process.do';
@@ -122,16 +120,13 @@ class ConvergeApi
             $request_url = 'https://api.demo.convergepay.com/VirtualMerchantDemo/process.do';
         }
 
-        // Debugging output
-        $this->debug = array();
-        $this->debug['Request URL'] = $request_url;
-
-        $this->debug['Posted Data'] = $data ? http_build_query($data) : null;
-
         $body = http_build_query($data);
 
         // Debugging output
-        $this->debug['Posted Data'] = $data;
+        $this->debug = array();
+        $this->debug['Request URL'] = $request_url;
+        $this->debug['SSL Mode'] = $this->insecure ? 'WARNING: VERIFICATION DISABLED': 'Verification enabled';
+        $this->debug['Posted Data'] = $data ? $body : null;
 
         try {
             $client = new \GuzzleHttp\Client($guzzleOptions);
