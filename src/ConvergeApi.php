@@ -164,6 +164,10 @@ class ConvergeApi
         if (count($lines)) {
             foreach ($lines as $line) {
                 if ($kvp = explode('=', $line, 2)) {
+                    if (count($kvp) != 2) {
+                        continue;
+                    }
+
                     $data[$kvp[0]] = $kvp[1];
                 }
             }
