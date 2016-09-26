@@ -131,8 +131,7 @@ class ConvergeApi
         try {
             $client = new \GuzzleHttp\Client($guzzleOptions);
             $response = $client->request('POST', $request_url, [
-                'headers' => [],
-                'body' => $body,
+                'form_params' => $data,
             ]);
         } catch (\Exception $e) {
             $this->debug['Exception'] = $e;
