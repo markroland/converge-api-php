@@ -239,4 +239,15 @@ class ConvergeApi
         $parameters['ssl_transaction_type'] = 'ccresurringsale';
         return $this->sendRequest('ccresurringsale', $parameters);
     }
+
+    /**
+     * Submit "ccresurringsale" request
+     * @param array $parameters Input parameters
+     * @return array Response from Converge
+     **/
+    public function txnquery(array $parameters = array())
+    {
+        $parameters['ssl_transaction_type'] = 'txnquery';
+        return $this->sendRequest('txnquery', $parameters);
+    }
 }
