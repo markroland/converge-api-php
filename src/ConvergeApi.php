@@ -83,9 +83,9 @@ class ConvergeApi
 
         // Set request
         if ($this->live) {
-            $request_url = 'https://www.myvirtualmerchant.com/VirtualMerchant/process.do';
+            $request_url = 'https://api.convergepay.com/VirtualMerchant/process.do';
         } else {
-            $request_url = 'https://demo.myvirtualmerchant.com/VirtualMerchantDemo/process.do';
+            $request_url = 'https://api.demo.convergepay.com/VirtualMerchantDemo/process.do';
         }
 
         // Debugging output
