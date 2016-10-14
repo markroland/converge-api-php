@@ -1,7 +1,7 @@
 Converge API PHP class
 ======================
 
-[![Build Status](https://travis-ci.org/israelshirk/converge-api-php.svg?branch=master)](https://travis-ci.org/israelshirk/converge-api-php)
+[![Build Status](https://travis-ci.org/markroland/converge-api-php.svg?branch=master)](https://travis-ci.org/markroland/converge-api-php)
 
 A PHP class that acts as wrapper for the Converge API.
 

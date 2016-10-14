@@ -3,7 +3,6 @@
     "description": "A PHP class that acts as wrapper for the Converge API",
     "keywords": ["converge", "api", "virtual merchant", "elavon"],
     "homepage": "https://github.com/markroland/converge-api-php",
-    "version": "0.3",
     "license": "MIT",
     "authors": [
         {
