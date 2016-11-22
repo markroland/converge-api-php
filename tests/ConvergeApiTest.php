@@ -29,7 +29,7 @@ class ConvergeApiTest extends PHPUnit_Framework_TestCase
         return $historyContainer;
     }
 
-    public function _test($method, $request, $expectedResponse, $live = true, $testMode = false)
+    public function _test($method, $request, $expectedResponse, $expectedResponseBody, $live = true, $testMode = false)
     {
         // historyContainer here is passed by reference.  Later
         // we can inspect it to see history.
@@ -38,7 +38,8 @@ class ConvergeApiTest extends PHPUnit_Framework_TestCase
         // This is kind of convoluted but gets it done.  Welcome
         // to modularization without convenience methods :)
         $historyMiddleware = Middleware::history($historyContainer);
-        $mockBody = Psr7\stream_for(http_build_query($expectedResponse));
+
+        $mockBody = $expectedResponseBody;
         $mockResponse = new Response(200, [], $mockBody);
         $mockHandler = new MockHandler([$mockResponse]);
         $handlerStack = HandlerStack::create($mockHandler);
@@ -56,8 +57,10 @@ class ConvergeApiTest extends PHPUnit_Framework_TestCase
 
         $response = $convergeApi->$method($request);
 
-        $this->assertNotFalse($response, "Should not have gotten a false response back");
+        ksort($expectedResponse);
+        ksort($response);
 
+        $this->assertNotFalse($response, "Should not have gotten a false response back");
         $this->assertSame($expectedResponse, $response, "Should have received the expected response");
         $this->assertSame(1, count($historyContainer), "Should have had an outgoing request");
         $transaction = $historyContainer[0];
@@ -78,13 +81,14 @@ class ConvergeApiTest extends PHPUnit_Framework_TestCase
         ksort($expectedRequest);
         ksort($request);
 
-        $this->assertSame('POST', $transaction['request']->getMethod());
-        $this->assertSame($expectedRequest, $request);
-        $this->assertSame(parse_str((string)$transaction['response']->getBody()), parse_str(http_build_query($expectedResponse)));
+        $this->assertSame('POST', $transaction['request']->getMethod(), "Should have a method of POST");
+        $this->assertSame($expectedRequest, $request, "Should have sent the expected request");
+        $this->assertSame((string)$transaction['response']->getBody(), $expectedResponseBody, "Should have contained the expected response body");
 
         $this->assertSame(
             (string)$transaction['request']->getUri(),
-            $live ? 'https://api.convergepay.com/VirtualMerchant/process.do' : 'https://api.demo.convergepay.com/VirtualMerchantDemo/process.do'
+            $live ? 'https://api.convergepay.com/VirtualMerchant/process.do' : 'https://api.demo.convergepay.com/VirtualMerchantDemo/process.do',
+            "Should have sent a request to the expected Uri"
         );
     }
 
@@ -107,10 +111,14 @@ class ConvergeApiTest extends PHPUnit_Framework_TestCase
         );
 
         $expectedResponse = [
-            'errorCode' => '4025'
+            'ssl_result' => '0',
+            'ssl_result_message' => 'APPROVAL',
+            'ssl_txn_id' => '1234'
         ];
 
-        $this->_test($method, $request, $expectedResponse);
+        $expectedResponseBody = $this->_transactionToResponseBody($expectedResponse);
+
+        $this->_test($method, $request, $expectedResponse, $expectedResponseBody);
     }
 
     public function testCCSaleDemo()
@@ -131,7 +139,9 @@ class ConvergeApiTest extends PHPUnit_Framework_TestCase
             'errorCode' => '4025'
         ];
 
-        $this->_test($method, $request, $expectedResponse, true, false);
+        $expectedResponseBody = $this->_transactionToResponseBody($expectedResponse);
+
+        $this->_test($method, $request, $expectedResponse, $expectedResponseBody, true, false);
     }
 
     public function testCCSaleTestDemo()
@@ -152,7 +162,9 @@ class ConvergeApiTest extends PHPUnit_Framework_TestCase
             'errorCode' => '4025'
         ];
 
-        $this->_test($method, $request, $expectedResponse, true, true);
+        $expectedResponseBody = $this->_transactionToResponseBody($expectedResponse);
+
+        $this->_test($method, $request, $expectedResponse, $expectedResponseBody, true, true);
     }
 
     public function testCCAddInstall()
@@ -178,6 +190,124 @@ class ConvergeApiTest extends PHPUnit_Framework_TestCase
             'errorCode' => '4025'
         ];
 
-        $this->_test($method, $request, $expectedResponse);
+        $expectedResponseBody = $this->_transactionToResponseBody($expectedResponse);
+
+        $this->_test($method, $request, $expectedResponse, $expectedResponseBody);
     }
+
+    private function _transactionToResponseBody($transaction) {
+        return implode("\n", array_map(function ($v, $k) { return sprintf("%s=%s", $k, $v); },
+            $transaction,
+            array_keys($transaction)
+        ));
+    }
+
+    public function testTxnquery()
+    {
+        $method = 'txnquery';
+
+        $transactionId = 1234;
+
+        $request = array(
+            'ssl_txn_id' => "$transactionId"
+        );
+
+        $expectedResponse = array(
+            "ssl_txn_count" => '1',
+            "transactions" => array(
+                array(
+                    "ssl_txn_id" => "$transactionId",
+                    "ssl_user_id" => "my_user",
+                    "ssl_trans_status" => "STL",
+                    "ssl_card_type" => "CREDITCARD",
+                    "ssl_transaction_type" => "SALE",
+                    "ssl_txn_time" => "07/09/2013 02:29:13 PM",
+                    "ssl_first_name" => "John",
+                    "ssl_last_name" => "Doe",
+                    "ssl_card_number" => "00**********0000",
+                    "ssl_exp_date" => "1215",
+                    "ssl_entry_mode" => "K",
+                    "ssl_avs_response" => "",
+                    "ssl_cvv2_response" => "",
+                    "ssl_amount" => '.37',
+                    "ssl_invoice_number" => "",
+                    "ssl_result_message" => "APPROVAL",
+                    "ssl_approval_code" => "N29032"
+                )
+            )
+        );
+
+        $expectedResponseBody = "ssl_txn_count=1";      
+        foreach ($expectedResponse["transactions"] as $t) {
+            $expectedResponseBody .= "\n" . $this->_transactionToResponseBody($t); 
+        }  
+
+        $this->_test($method, $request, $expectedResponse, $expectedResponseBody);
+    }
+
+    public function testTxnqueryMulti()
+    {
+        $method = 'txnquery';
+
+        $cardNumber = '1234567890123456';
+
+        $request = array(
+            'ssl_card_number' => "$cardNumber"
+        );
+
+        $transactionId0 = 1234;
+        $transactionId1 = 5678;
+
+        $expectedResponse = array(
+            "ssl_txn_count" => '2',
+            "transactions" => array(
+                array(
+                    "ssl_txn_id" => "$transactionId0",
+                    "ssl_user_id" => "my_user",
+                    "ssl_trans_status" => "STL",
+                    "ssl_card_type" => "CREDITCARD",
+                    "ssl_transaction_type" => "SALE",
+                    "ssl_txn_time" => "07/09/2013 02:29:13 PM",
+                    "ssl_first_name" => "John",
+                    "ssl_last_name" => "Doe",
+                    "ssl_card_number" => "00**********0000",
+                    "ssl_exp_date" => "1215",
+                    "ssl_entry_mode" => "K",
+                    "ssl_avs_response" => "",
+                    "ssl_cvv2_response" => "",
+                    "ssl_amount" => '.37',
+                    "ssl_invoice_number" => "",
+                    "ssl_result_message" => "APPROVAL",
+                    "ssl_approval_code" => "N29032"                    
+                ),
+                array(
+                    "ssl_txn_id" => "$transactionId1",
+                    "ssl_user_id" => "my_user",
+                    "ssl_trans_status" => "STL",
+                    "ssl_card_type" => "CREDITCARD",
+                    "ssl_transaction_type" => "SALE",
+                    "ssl_txn_time" => "07/09/2013 02:29:13 PM",
+                    "ssl_first_name" => "John",
+                    "ssl_last_name" => "Doe",
+                    "ssl_card_number" => "00**********0000",
+                    "ssl_exp_date" => "1215",
+                    "ssl_entry_mode" => "K",
+                    "ssl_avs_response" => "",
+                    "ssl_cvv2_response" => "",
+                    "ssl_amount" => '.37',
+                    "ssl_invoice_number" => "",
+                    "ssl_result_message" => "APPROVAL",
+                    "ssl_approval_code" => "N29032"                    
+                ),
+            )
+
+        );
+
+        $expectedResponseBody = "ssl_txn_count=2";
+        foreach ($expectedResponse["transactions"] as $t) {
+            $expectedResponseBody .= "\n" . $this->_transactionToResponseBody($t); 
+        }      
+
+        $this->_test($method, $request, $expectedResponse, $expectedResponseBody);
+    }    
 }

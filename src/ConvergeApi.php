@@ -80,16 +80,7 @@ class ConvergeApi
         $this->handler = $handler;
     }
 
-    /**
-     * Send a HTTP request to the API
-     *
-     * @param string $api_method The API method to be called
-     * @param array $data Any data to be sent to the API
-     * @return string
-     **/
-    private function sendRequest($api_method, $data)
-    {
-
+    private function _sendRequest($api_method, $data) {
         // Standard data
         $data['ssl_merchant_id'] = $this->merchant_id;
         $data['ssl_user_id'] = $this->user_id;
@@ -145,20 +136,68 @@ class ConvergeApi
         $this->debug['Response Protocol Version'] = $response->getProtocolVersion();
         $this->debug['Response Headers'] = $response->getHeaders();
         $this->debug['Response Body'] = $responseBody;
+        return $responseBody;        
+    }
 
+    /**
+     * Send a HTTP request to the API
+     *
+     * @param string $api_method The API method to be called
+     * @param array $data Any data to be sent to the API
+     * @param string $multisplit The key in the response body to use to break multiple records on
+     * @param string $multikey The key in the response array to put the multiple results
+     * @return array
+     **/
+    private function sendRequest($api_method, $data, $multisplit = NULL, $multikey = NULL)
+    {
+        $responseBody = $this->_sendRequest($api_method, $data);
+        
         // Parse and return
-        return $this->parseAsciiResponse($responseBody);
+        return $this->parseAsciiResponse($responseBody, $multisplit, $multikey);
     }
 
     /**
      * Parse an ASCII response
      * @param string $ascii_string An ASCII (plaintext) Response
+     * @param string $multisplit The key in the response body to use to break multiple records on
+     * @param string $multikey The key in the response array to put the multiple results
      * @return array
+     *         If $multisplit is NULL, then response will be key value pairs like:
+     *         array(
+     *             'ssl_result' => '0',
+     *             'ssl_result_message' => 'APPROVAL',
+     *             'ssl_txn_id' => '1234'
+     *         )
+     *         from an input of:
+     *         ssl_result=0
+     *         ssl_result_message=APPROVAL
+     *         ssl_txn_id=1234
+     *         
+     *         If $multisplit is not NULL, then response will be key value pairs with an extra
+     *         entry for $multikey, like when $multisplit="ssl_txn_id" and $multikey="transactions":
+     *         array(
+     *             'ssl_txn_count' => 2,
+     *             "transactions" => array(
+     *                 array("ssl_txn_id" => "1234", "ssl_amount" => "0.37"),
+     *                 array("ssl_txn_id" => "5678", "ssl_amount" => "1.22")
+     *             )
+     *         )
+     *         from an input of:
+     *         ssl_txn_count=2
+     *         ssl_txn_id=1234
+     *         ssl_amount=0.37
+     *         ssl_txn_id=5678
+     *         ssl_amount=1.22
      **/
-    private function parseAsciiResponse($ascii_string)
+    private function parseAsciiResponse($ascii_string, $multisplit = NULL, $multikey = NULL)
     {
         $data = array();
+        if ($multisplit !== NULL) {
+            $data[$multikey] = array();
+        }
         $lines = explode("\n", $ascii_string);
+        $record = NULL;
+        $isCapturingMulti = false;
 
         if (count($lines)) {
             foreach ($lines as $line) {
@@ -166,9 +205,39 @@ class ConvergeApi
                     if (count($kvp) != 2) {
                         continue;
                     }
+                    // if the key matches the $multisplit key to split on
+                    // and we were already parsing a record, push onto
+                    // the $multikey in data
+                    if ($multisplit !== NULL && $kvp[0] === $multisplit) {
+                        // once we start capturing records, we only have
+                        // individual key value pairs that are transaction specific
+                        $isCapturingMulti = true;
+                        // if we were building a previous record, push it
+                        if ($record !== NULL) {
+                            $data[$multikey][] = $record;
+                        }
+                        // initialize record to empty
+                        $record = array();
+                    }
 
-                    $data[$kvp[0]] = $kvp[1];
+                    // if we are capturing multi, populate the record
+                    // even with the key we split on
+                    if ($isCapturingMulti) {
+                        $record[$kvp[0]] = $kvp[1];
+                    }
+                    // if we are not capturing multiple records yet
+                    // in the response, we have a response-wide key/value pair
+                    // so store at the top level of the data
+                    else {
+                        $data[$kvp[0]] = $kvp[1];
+                    }
                 }
+            }
+            // after we are done capturing, if we captured multiple records
+            // the last one will not have been added on yet
+            if ($isCapturingMulti && $record !== NULL) {
+                $data[$multikey][] = $record;
+                $record = NULL;
             }
         }
         return $data;
@@ -241,13 +310,13 @@ class ConvergeApi
     }
 
     /**
-     * Submit "ccresurringsale" request
+     * Submit "txnquery" request
      * @param array $parameters Input parameters
      * @return array Response from Converge
      **/
     public function txnquery(array $parameters = array())
     {
         $parameters['ssl_transaction_type'] = 'txnquery';
-        return $this->sendRequest('txnquery', $parameters);
+        return $this->sendRequest('txnquery', $parameters, 'ssl_txn_id', 'transactions');
     }
 }
