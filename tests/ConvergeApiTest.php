@@ -84,7 +84,7 @@ class ConvergeApiTest extends PHPUnit_Framework_TestCase
 
         $this->assertSame(
             (string)$transaction['request']->getUri(),
-            $live ? 'https://www.myvirtualmerchant.com/VirtualMerchant/process.do' : 'https://demo.myvirtualmerchant.com/VirtualMerchantDemo/process.do'
+            $live ? 'https://api.convergepay.com/VirtualMerchant/process.do' : 'https://api.demo.convergepay.com/VirtualMerchantDemo/process.do'
         );
     }
 
