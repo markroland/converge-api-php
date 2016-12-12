@@ -80,7 +80,7 @@ class ConvergeApi
         $this->handler = $handler;
     }
 
-    private function _sendRequest($api_method, $data) {
+    private function httpRequest($api_method, $data) {
         // Standard data
         $data['ssl_merchant_id'] = $this->merchant_id;
         $data['ssl_user_id'] = $this->user_id;
@@ -136,7 +136,7 @@ class ConvergeApi
         $this->debug['Response Protocol Version'] = $response->getProtocolVersion();
         $this->debug['Response Headers'] = $response->getHeaders();
         $this->debug['Response Body'] = $responseBody;
-        return $responseBody;        
+        return $responseBody;
     }
 
     /**
@@ -150,8 +150,8 @@ class ConvergeApi
      **/
     private function sendRequest($api_method, $data, $multisplit = NULL, $multikey = NULL)
     {
-        $responseBody = $this->_sendRequest($api_method, $data);
-        
+        $responseBody = $this->httpRequest($api_method, $data);
+
         // Parse and return
         return $this->parseAsciiResponse($responseBody, $multisplit, $multikey);
     }
@@ -172,7 +172,7 @@ class ConvergeApi
      *         ssl_result=0
      *         ssl_result_message=APPROVAL
      *         ssl_txn_id=1234
-     *         
+     *
      *         If $multisplit is not NULL, then response will be key value pairs with an extra
      *         entry for $multikey, like when $multisplit="ssl_txn_id" and $multikey="transactions":
      *         array(
