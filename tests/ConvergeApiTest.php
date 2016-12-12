@@ -310,4 +310,29 @@ class ConvergeApiTest extends PHPUnit_Framework_TestCase
 
         $this->_test($method, $request, $expectedResponse, $expectedResponseBody);
     }    
+	
+    public function testCCAuthOnly()
+    {
+        $method = 'ccauthonly';
+        $request = array(
+            'ssl_amount' => '9.99',
+            'ssl_card_number' => '5000300020003003',
+            'ssl_cvv2cvc2' => '123',
+            'ssl_exp_date' => '1222',
+            'ssl_avs_zip' => '37013',
+            'ssl_avs_address' => '123 main',
+			'ssl_first_name' => 'Adam',
+            'ssl_last_name' => 'Smith'
+        );
+
+        $expectedResponse = [
+            'ssl_result' => '0',
+            'ssl_result_message' => 'APPROVAL',
+            'ssl_txn_id' => '1234'
+        ];
+
+        $expectedResponseBody = $this->_transactionToResponseBody($expectedResponse);
+
+        $this->_test($method, $request, $expectedResponse, $expectedResponseBody);
+    }   
 }

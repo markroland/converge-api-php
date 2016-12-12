@@ -319,4 +319,15 @@ class ConvergeApi
         $parameters['ssl_transaction_type'] = 'txnquery';
         return $this->sendRequest('txnquery', $parameters, 'ssl_txn_id', 'transactions');
     }
+
+    /**
+     * Submit "ccauthonly" request
+     * @param array $parameters Input parameters
+     * @return array Response from Converge
+     **/
+    public function ccauthonly(array $parameters = array())
+    {
+        $parameters['ssl_transaction_type'] = 'ccauthonly';
+        return $this->sendRequest('ccauthonly', $parameters);
+    }
 }
