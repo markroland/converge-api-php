@@ -30,7 +30,7 @@ to your `composer.json` file:
 ```json
 {
     "require": {
-        "markroland/converge-api-php": "~0.2"
+        "markroland/converge-api-php": "^0.4"
     }
 }
 ```
