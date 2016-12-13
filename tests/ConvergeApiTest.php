@@ -320,8 +320,8 @@ class ConvergeApiTest extends PHPUnit_Framework_TestCase
             'ssl_cvv2cvc2' => '123',
             'ssl_exp_date' => '1222',
             'ssl_avs_zip' => '37013',
-			'ssl_avs_address' => '123 main',
-			'ssl_first_name' => 'Adam',
+            'ssl_avs_address' => '123 main',
+            'ssl_first_name' => 'Adam',
             'ssl_last_name' => 'Smith'
         );
 
