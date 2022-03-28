@@ -1,5 +1,7 @@
 <?php
 
+use PHPUnit\Framework\TestCase;
+
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
@@ -9,19 +11,17 @@ use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7;
 use GuzzleHttp\Middleware;
 
-class ConvergeApiTest extends PHPUnit_Framework_TestCase
+class ConvergeApiTest extends TestCase
 {
     private $merchantId = 'YOUR_CONVERGE_MERCHANTID';
     private $userId = 'YOUR_CONVERGE_USERID';
     private $pin = 'YOUR_CONVERGE_PIN';
 
-    protected function setUp()
-    {
+    protected function setUp() : void {
         parent::setUp();
     }
 
-    protected function tearDown()
-    {
+    protected function tearDown() : void {
         parent::tearDown();
     }
 
