@@ -1,5 +1,7 @@
 <?php
 
+use PHPUnit\Framework\TestCase;
+
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
@@ -9,19 +11,17 @@ use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7;
 use GuzzleHttp\Middleware;
 
-class ConvergeApiTest extends PHPUnit_Framework_TestCase
+class ConvergeApiTest extends TestCase
 {
     private $merchantId = 'YOUR_CONVERGE_MERCHANTID';
     private $userId = 'YOUR_CONVERGE_USERID';
     private $pin = 'YOUR_CONVERGE_PIN';
 
-    protected function setUp()
-    {
+    protected function setUp() : void {
         parent::setUp();
     }
 
-    protected function tearDown()
-    {
+    protected function tearDown() : void {
         parent::tearDown();
     }
 
@@ -65,7 +65,7 @@ class ConvergeApiTest extends PHPUnit_Framework_TestCase
         $this->assertSame(1, count($historyContainer), "Should have had an outgoing request");
         $transaction = $historyContainer[0];
 
-        // Mix in 
+        // Mix in
         $expectedRequest = array_merge($request, [
             'ssl_merchant_id' => $this->merchantId,
             'ssl_user_id' => $this->userId,
@@ -237,10 +237,10 @@ class ConvergeApiTest extends PHPUnit_Framework_TestCase
             )
         );
 
-        $expectedResponseBody = "ssl_txn_count=1";      
+        $expectedResponseBody = "ssl_txn_count=1";
         foreach ($expectedResponse["transactions"] as $t) {
-            $expectedResponseBody .= "\n" . $this->_transactionToResponseBody($t); 
-        }  
+            $expectedResponseBody .= "\n" . $this->_transactionToResponseBody($t);
+        }
 
         $this->_test($method, $request, $expectedResponse, $expectedResponseBody);
     }
@@ -278,7 +278,7 @@ class ConvergeApiTest extends PHPUnit_Framework_TestCase
                     "ssl_amount" => '.37',
                     "ssl_invoice_number" => "",
                     "ssl_result_message" => "APPROVAL",
-                    "ssl_approval_code" => "N29032"                    
+                    "ssl_approval_code" => "N29032"
                 ),
                 array(
                     "ssl_txn_id" => "$transactionId1",
@@ -297,7 +297,7 @@ class ConvergeApiTest extends PHPUnit_Framework_TestCase
                     "ssl_amount" => '.37',
                     "ssl_invoice_number" => "",
                     "ssl_result_message" => "APPROVAL",
-                    "ssl_approval_code" => "N29032"                    
+                    "ssl_approval_code" => "N29032"
                 ),
             )
 
@@ -305,12 +305,12 @@ class ConvergeApiTest extends PHPUnit_Framework_TestCase
 
         $expectedResponseBody = "ssl_txn_count=2";
         foreach ($expectedResponse["transactions"] as $t) {
-            $expectedResponseBody .= "\n" . $this->_transactionToResponseBody($t); 
-        }      
+            $expectedResponseBody .= "\n" . $this->_transactionToResponseBody($t);
+        }
 
         $this->_test($method, $request, $expectedResponse, $expectedResponseBody);
-    }    
-	
+    }
+
     public function testCCAuthOnly()
     {
         $method = 'ccauthonly';
